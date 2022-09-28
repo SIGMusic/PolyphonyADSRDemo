@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 
 #include "WavetableSynth.h"
+#include "Scene.h"
 
 //==============================================================================
 /*
@@ -36,11 +37,10 @@ public:
     }
 private:
     //==============================================================================
+    SceneComponent scene_;
     WavetableSynth wavetable_synth_;
     juce::MidiKeyboardState midi_keyboard_state_one_;
-    juce::MidiKeyboardState midi_keyboard_state_two_;
     std::unique_ptr<juce::MidiKeyboardComponent> midi_keyboard_one_;
-    std::unique_ptr<juce::MidiKeyboardComponent> midi_keyboard_two_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };
