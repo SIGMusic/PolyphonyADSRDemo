@@ -24,9 +24,11 @@ MainComponent::MainComponent()
         synths_.add(new_keyboard);
     }
 
+    addAndMakeVisible(&scene_);
+
     // Make sure you set the size of the component after
     // you add any child components.
-    setSize (800, kNumSynths * kKeyboardHeight);
+    setSize (800, kNumSynths * kKeyboardHeight + 300);
 }
 
 MainComponent::~MainComponent()
@@ -61,8 +63,10 @@ void MainComponent::paint (juce::Graphics& g)
 void MainComponent::resized()
 {
     auto local_bounds = getLocalBounds();
+    scene_.setBounds(local_bounds.removeFromTop(300));
     for (auto* keyboard : synths_)
     {
         keyboard->setBounds(local_bounds.removeFromTop(kKeyboardHeight));
     }
 }
+

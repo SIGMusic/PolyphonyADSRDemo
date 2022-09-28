@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 
 #include "SynthKeyboard.h"
+#include "Scene.h"
 
 //==============================================================================
 /*
@@ -26,9 +27,12 @@ public:
     void resized() override;
 private:
     //==============================================================================
-    static const size_t kNumSynths = 5;
+    static const size_t kNumSynths = 3;
     static const int kKeyboardHeight = 100; // pixels
     juce::OwnedArray<SynthKeyboard> synths_;
     juce::MixerAudioSource mixer_;
+
+    SceneComponent scene_;
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };
