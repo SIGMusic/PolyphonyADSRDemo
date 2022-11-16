@@ -11,7 +11,10 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include <map>
 #include "WavetableSynth.h"
+
+using std::unordered_map;
 
 //==============================================================================
 /*
@@ -27,6 +30,14 @@ public:
         midi_keyboard_.reset(new juce::MidiKeyboardComponent(midi_keyboard_state_,
                             juce::KeyboardComponentBase::Orientation::horizontalKeyboard));
         addAndMakeVisible(midi_keyboard_.get());
+
+        for (int voice_idx = 0; voice_idx < max_voices_; ++voice_idx)
+        {
+            auto* synth = new WavetableSynth();
+            mixer_.addInputSource(synth, false);
+            free_voices_[num_free_voices_++] = synth;
+            voices_.add(synth);
+        }
     }
 
     virtual ~SynthKeyboard() = default;
@@ -62,14 +73,17 @@ public:
  
     virtual void prepareToPlay(int samplesPerBlockExpected, double sampleRate) override
     {
-    wavetable_synth_.prepareToPlay(samplesPerBlockExpected, sampleRate);
+        mixer_.prepareToPlay(samplesPerBlockExpected, sampleRate);
     }
  
-    virtual void releaseResources() override { /* Nothing */ }
+    virtual void releaseResources() override
+    {
+        mixer_.releaseResources();
+    }
 
     virtual void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill) override
     {
-        wavetable_synth_.getNextAudioBlock(bufferToFill);
+        mixer_.getNextAudioBlock(bufferToFill);
     }
 
     //==========================================================================
@@ -85,8 +99,21 @@ public:
                               int midiNoteNumber,
                               float velocity) override
     {
-        wavetable_synth_.setFrequency(midiToFreq((juce::uint8) midiNoteNumber));
-        wavetable_synth_.setAmplitude(0.5);
+        if (voice_mapping_.find(midiNoteNumber) != voice_mapping_.end())
+        {
+            voice_mapping_[midiNoteNumber]->setFrequency(
+                (juce::uint8) midiToFreq(midiNoteNumber));
+        }
+        else if (num_free_voices_ > 0)
+        {
+            auto* voice = free_voices_[num_free_voices_ - 1];
+            voice_mapping_[midiNoteNumber] = voice;
+            auto freq = midiToFreq((juce::uint8) midiNoteNumber);
+            voice->setFrequency(freq);
+            voice->noteOn(1.0 / max_voices_);
+            free_voices_[num_free_voices_ - 1] = nullptr;
+            --num_free_voices_;
+        }
     }
 
     virtual void handleNoteOff(juce::MidiKeyboardState *source,
@@ -94,7 +121,14 @@ public:
                                int midiNoteNumber,
                                float velocity) override
     {
-        wavetable_synth_.setAmplitude(0.0);
+        std::unordered_map<int, WavetableSynth*>::iterator iter;
+        if ((iter = voice_mapping_.find(midiNoteNumber)) != voice_mapping_.end())
+        {
+            auto* voice = voice_mapping_[midiNoteNumber];
+            voice->noteOff();
+            voice_mapping_.erase(iter);
+            free_voices_[num_free_voices_++] = voice;
+        }
     }
 
     //==========================================================================
@@ -107,8 +141,21 @@ public:
         midi_keyboard_->setBounds(getLocalBounds());
     }
 
+    juce::OwnedArray<WavetableSynth>& getVoices()
+    {
+        return voices_; // sorry, this is a hack
+    }
+
 private:
-    WavetableSynth wavetable_synth_;
+    // TODO
+    static const int max_voices_ = 8;
+    juce::OwnedArray<WavetableSynth> voices_;
+    juce::MixerAudioSource mixer_;
+
+    int num_free_voices_ = 0;
+    WavetableSynth* free_voices_[max_voices_];
+    unordered_map<int, WavetableSynth*> voice_mapping_;
+
     juce::MidiKeyboardState midi_keyboard_state_;
     std::unique_ptr<juce::MidiKeyboardComponent> midi_keyboard_;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SynthKeyboard)

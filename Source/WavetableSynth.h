@@ -18,27 +18,62 @@
 class WavetableSynth  : public juce::ToneGeneratorAudioSource
 {
 public:
-    WavetableSynth()
+    WavetableSynth(float attack_time = 0.1,
+                   float decay_time = 0.2,
+                   float sustain_frac = 0.9,
+                   float release_time = 0.1) :
+        attack_time_(attack_time),
+        decay_time_(decay_time),
+        sustain_frac_(sustain_frac),
+        release_time_(release_time)
     {
         buildWavetable();
     }
 
     ~WavetableSynth() override { /* Nothing */ }
-    
-    void setAmplitude(float amp)
+
+    void noteOn(float amp)
     {
-        amplitude_ = amp;
+        if (attack_time_ == 0.0f)
+            adsr_state_ = Sustain;
+        else
+            adsr_state_ = Attack;
+        max_amplitude_ = amp;
     }
 
+    void noteOff()
+    {
+        adsr_state_ = Release;
+    }
+    
     void setFrequency(float frequency)
     {
         frequency_ = frequency;
         prepareToPlay(0, sample_rate_);
     }
 
+    void setAttack(float attack_time)
+    {
+        attack_time_ = attack_time;
+    }
+
+    void setDecay(float decay_time)
+    {
+        decay_time_ = decay_time;
+    }
+
+    void setSustain(float sustain_frac)
+    {
+        sustain_frac_ = sustain_frac;
+    }
+
+    void setRelease(float release_time)
+    {
+        release_time_ = release_time;
+    }
+
     /**
     Calculates the number of "steps" to take through the table per sample.
-    TODO
     */
     virtual void prepareToPlay(
         int /* parameter not needed */, double sampleRate) override
@@ -61,7 +96,7 @@ public:
 
         for (unsigned int idx = 0; idx < bufferToFill.numSamples; ++idx)
         {
-            buf0[idx] = amplitude_ * getNextSample();
+            buf0[idx] = calcAmplitude() * getNextSample();
         }
 
         // Duplicate signal across all channels
@@ -79,7 +114,6 @@ public:
 
     /**
     Get the next sample in the wavetable based on the current index and the step size.
-     TODO
     */
     forcedinline float getNextSample() noexcept
     {
@@ -104,7 +138,6 @@ public:
     
     /**
         Build the wavetable here using the table size.
-        TODO
     */
     void buildWavetable()
     {
@@ -126,14 +159,77 @@ public:
     }
 
 private:
+    float calcAmplitude()
+    {
+        // all in units of amplitude per sample
+        int attack_samples = fmax(sample_rate_ * attack_time_, 1);
+        int decay_samples = fmax(sample_rate_ * decay_time_, 1);
+        int release_samples = fmax(sample_rate_ * release_time_, 1);
+
+        float attack_rate = max_amplitude_ / attack_samples;
+        float decay_rate = (max_amplitude_ * (1 - sustain_frac_)) / decay_samples;
+        float release_rate = (max_amplitude_ * sustain_frac_) / release_samples;
+
+        switch (adsr_state_)
+        {
+            case Attack:
+                if (curr_amplitude_ >= max_amplitude_)
+                {
+                    curr_amplitude_ = max_amplitude_;
+                    adsr_state_ = Decay;
+                    break;
+                }
+                curr_amplitude_ += attack_rate;
+                break;
+            case Decay:
+                if (curr_amplitude_ <= sustain_frac_ * max_amplitude_)
+                {
+                    curr_amplitude_ = sustain_frac_ * max_amplitude_;
+                    adsr_state_ = Sustain;
+                    break;
+                }
+                curr_amplitude_ -= decay_rate;
+                break;
+            case Sustain:
+                curr_amplitude_ = sustain_frac_ * max_amplitude_;
+                break;
+            case Release:
+                if (curr_amplitude_ <= 0)
+                {
+                    curr_amplitude_ = 0;
+                    break;
+                }
+                curr_amplitude_ -= release_rate;
+                break;
+        }
+
+        return curr_amplitude_;
+    }
+
     // Begin wavetable data
     juce::AudioSampleBuffer wavetable_;
     int table_size_ = 4096;
     double sample_rate_ = 48000.0;
-    float amplitude_ = 0.0f;
     float frequency_ = 440.0f;
     float current_index_ = 0.0f, table_delta_ = 0.0f;
     // End wavetable data
+
+    // Begin ADSR data
+    typedef enum
+    {
+        Attack,
+        Decay,
+        Sustain,
+        Release
+    } State;
+    State adsr_state_;
+    float max_amplitude_ = 0.0f;
+    float curr_amplitude_ = 0.0f;
+    float attack_time_;
+    float decay_time_;
+    float sustain_frac_;         // fraction of maximum amplitude to sustain
+    float release_time_;
+    // End ADSR data
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WavetableSynth)
 };
