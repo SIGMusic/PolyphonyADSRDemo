@@ -18,6 +18,7 @@
 class WavetableSynth  : public juce::ToneGeneratorAudioSource
 {
 public:
+    // TODO
     WavetableSynth()
     {
         buildWavetable();
@@ -25,6 +26,7 @@ public:
 
     ~WavetableSynth() override { /* Nothing */ }
     
+    // TODO
     void setAmplitude(float amp)
     {
         amplitude_ = amp;
@@ -35,6 +37,8 @@ public:
         frequency_ = frequency;
         prepareToPlay(0, sample_rate_);
     }
+
+    // TODO
 
     /**
     Calculates the number of "steps" to take through the table per sample.
@@ -61,6 +65,7 @@ public:
 
         for (unsigned int idx = 0; idx < bufferToFill.numSamples; ++idx)
         {
+            // TODO
             buf0[idx] = amplitude_ * getNextSample();
         }
 
@@ -126,14 +131,25 @@ public:
     }
 
 private:
+
+    float calcAmplitude()
+    {
+        // TODO
+    }
+
     // Begin wavetable data
     juce::AudioSampleBuffer wavetable_;
     int table_size_ = 4096;
     double sample_rate_ = 48000.0;
+    // TODO
     float amplitude_ = 0.0f;
     float frequency_ = 440.0f;
     float current_index_ = 0.0f, table_delta_ = 0.0f;
     // End wavetable data
+
+    // Begin ADSR data
+    // TODO
+    // End ADSR data
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WavetableSynth)
 };

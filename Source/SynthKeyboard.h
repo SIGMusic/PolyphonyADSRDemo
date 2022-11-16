@@ -13,6 +13,10 @@
 #include <JuceHeader.h>
 #include "WavetableSynth.h"
 
+#include <map>
+
+using std::unordered_map;
+
 //==============================================================================
 /*
 */
@@ -62,14 +66,17 @@ public:
  
     virtual void prepareToPlay(int samplesPerBlockExpected, double sampleRate) override
     {
-    wavetable_synth_.prepareToPlay(samplesPerBlockExpected, sampleRate);
+        // TODO
     }
  
-    virtual void releaseResources() override { /* Nothing */ }
+    virtual void releaseResources() override
+    {
+        // TODO
+    }
 
     virtual void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill) override
     {
-        wavetable_synth_.getNextAudioBlock(bufferToFill);
+        // TODO
     }
 
     //==========================================================================
@@ -85,8 +92,7 @@ public:
                               int midiNoteNumber,
                               float velocity) override
     {
-        wavetable_synth_.setFrequency(midiToFreq((juce::uint8) midiNoteNumber));
-        wavetable_synth_.setAmplitude(0.5);
+        // TODO
     }
 
     virtual void handleNoteOff(juce::MidiKeyboardState *source,
@@ -94,7 +100,7 @@ public:
                                int midiNoteNumber,
                                float velocity) override
     {
-        wavetable_synth_.setAmplitude(0.0);
+        // TODO
     }
 
     //==========================================================================
@@ -108,7 +114,8 @@ public:
     }
 
 private:
-    WavetableSynth wavetable_synth_;
+    // TODO
+
     juce::MidiKeyboardState midi_keyboard_state_;
     std::unique_ptr<juce::MidiKeyboardComponent> midi_keyboard_;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SynthKeyboard)
