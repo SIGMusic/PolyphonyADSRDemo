@@ -10,7 +10,9 @@
     This component lives inside our window, and this is where you should put all
     your controls and content.
 */
-class MainComponent  : public juce::AudioAppComponent
+class MainComponent  : public juce::AudioAppComponent,
+                       public juce::MidiInputCallback,
+                       public juce::Slider::Listener
 {
 public:
     //==============================================================================
@@ -25,14 +27,29 @@ public:
     //==============================================================================
     void paint (juce::Graphics& g) override;
     void resized() override;
+
+    //==============================================================================
+    void handleIncomingMidiMessage (juce::MidiInput* /*source*/,
+                                    const juce::MidiMessage& message) override
+    {
+        synth_.processMIDIMessage(message);
+    }
+
+    virtual void sliderValueChanged(juce::Slider* slider) override;
 private:
     //==============================================================================
-    static const size_t kNumSynths = 3;
+    static const int kWindowWidth = 800;
     static const int kKeyboardHeight = 100; // pixels
-    juce::OwnedArray<SynthKeyboard> synths_;
-    juce::MixerAudioSource mixer_;
+    static const int kSliderHeight = 300; // pixels
+    static const int kSliderWidth = kWindowWidth / 4; // pixels
+    SynthKeyboard synth_;
+    juce::AudioDeviceManager audioDeviceManager;
+    juce::AudioDeviceSelectorComponent audioSetupComp;
 
-    SceneComponent scene_;
+    juce::Slider attack_;
+    juce::Slider decay_;
+    juce::Slider sustain_;
+    juce::Slider release_;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
 };

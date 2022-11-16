@@ -32,6 +32,32 @@ public:
     virtual ~SynthKeyboard() = default;
 
     //==========================================================================
+    // External MIDI
+
+    void processMIDIMessage(const juce::MidiMessage& message)
+    {
+        if (message.isNoteOn())
+        {
+            /* TODO
+            handleNoteOn(nullptr,
+                         message.getChannel(),
+                         message.getNoteNumber(),
+                         message.getVelocity());
+                         */
+        }
+        else if (message.isNoteOff())
+        {
+            /* TODO
+            handleNoteOff(nullptr,
+                          message.getChannel(),
+                          message.getNoteNumber(),
+                          message.getVelocity());
+                          */
+        }
+    }
+ 
+
+    //==========================================================================
     // AudioSource
  
     virtual void prepareToPlay(int samplesPerBlockExpected, double sampleRate) override

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="Dscm30" name="SIGMusic Graphics Demo" projectType="guiapp"
+<JUCERPROJECT id="Dscm30" name="SIGMusic Polyphony-ADSR Demo" projectType="guiapp"
               useAppConfig="0" addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1">
-  <MAINGROUP id="V1uUBq" name="SIGMusic Graphics Demo">
+  <MAINGROUP id="V1uUBq" name="SIGMusic Polyphony-ADSR Demo">
     <GROUP id="{7BEC5208-8D2A-BE3A-0886-FD38FD5D3E31}" name="Source">
       <FILE id="irs2Td" name="SynthKeyboard.h" compile="0" resource="0" file="Source/SynthKeyboard.h"/>
       <FILE id="aalXVg" name="WavetableSynth.h" compile="0" resource="0"

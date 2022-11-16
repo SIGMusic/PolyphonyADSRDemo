@@ -1,7 +1,11 @@
 #include "MainComponent.h"
 
 //==============================================================================
-MainComponent::MainComponent()
+MainComponent::MainComponent() : audioSetupComp (audioDeviceManager, 0, 0, 0, 256,
+                                                 true, // showMidiInputOptions must be true
+                                                 true,
+                                                 true,
+                                                 false)
 {
     // Some platforms require permissions to open input channels so request that here
     if (juce::RuntimePermissions::isRequired (juce::RuntimePermissions::recordAudio)
@@ -16,23 +20,47 @@ MainComponent::MainComponent()
         setAudioChannels (2, 2);
     }
 
-    for (size_t synth_idx = 0; synth_idx < kNumSynths; ++synth_idx)
-    {
-        auto* new_keyboard = new SynthKeyboard();
-        addAndMakeVisible(new_keyboard);
-        mixer_.addInputSource(new_keyboard, false);
-        synths_.add(new_keyboard);
-    }
+    audioDeviceManager.initialise (0, 2, nullptr, true, {}, nullptr);
+    audioDeviceManager.addMidiInputDeviceCallback ({}, this);
 
-    addAndMakeVisible(&scene_);
+    addAndMakeVisible(audioSetupComp);
+    addAndMakeVisible(&synth_);
+
+    attack_.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
+    attack_.setRange(0.0, 5.0);
+    attack_.setValue(0.1);
+    attack_.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 10);
+    decay_.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
+    decay_.setRange(0.0, 5.0);
+    decay_.setValue(0.1);
+    decay_.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 10);
+    sustain_.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
+    sustain_.setRange(0.0, 1.0);
+    sustain_.setValue(0.9);
+    sustain_.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 10);
+    release_.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
+    release_.setRange(0.0, 5.0);
+    release_.setValue(0.1);
+    release_.setTextBoxStyle(juce::Slider::TextBoxBelow, true, 50, 10);
+
+    addAndMakeVisible(attack_);
+    addAndMakeVisible(decay_);
+    addAndMakeVisible(sustain_);
+    addAndMakeVisible(release_);
+
+    attack_.addListener(this);
+    decay_.addListener(this);
+    sustain_.addListener(this);
+    release_.addListener(this);
 
     // Make sure you set the size of the component after
     // you add any child components.
-    setSize (800, kNumSynths * kKeyboardHeight + 300);
+    setSize (kWindowWidth, 400 + kKeyboardHeight + kSliderHeight);
 }
 
 MainComponent::~MainComponent()
 {
+    audioDeviceManager.removeMidiInputDeviceCallback ({}, this);
     // This shuts down the audio device and clears the audio source.
     shutdownAudio();
 }
@@ -40,17 +68,17 @@ MainComponent::~MainComponent()
 //==============================================================================
 void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
 {
-    mixer_.prepareToPlay(samplesPerBlockExpected, sampleRate);
+    synth_.prepareToPlay(samplesPerBlockExpected, sampleRate);
 }
 
 void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill)
 {
-    mixer_.getNextAudioBlock(bufferToFill);
+    synth_.getNextAudioBlock(bufferToFill);
 }
 
 void MainComponent::releaseResources()
 {
-    mixer_.releaseResources();
+    synth_.releaseResources();
 }
 
 //==============================================================================
@@ -63,10 +91,51 @@ void MainComponent::paint (juce::Graphics& g)
 void MainComponent::resized()
 {
     auto local_bounds = getLocalBounds();
-    scene_.setBounds(local_bounds.removeFromTop(300));
-    for (auto* keyboard : synths_)
+    synth_.setBounds(local_bounds.removeFromBottom(kKeyboardHeight));
+    auto slider_bounds = local_bounds.removeFromBottom(kSliderHeight);
+    for (auto* slider : {&attack_, &decay_, &sustain_, &release_})
     {
-        keyboard->setBounds(local_bounds.removeFromTop(kKeyboardHeight));
+        slider->setBounds(slider_bounds.removeFromLeft(kSliderWidth));
     }
+    audioSetupComp.setBounds(local_bounds);
 }
 
+void MainComponent::sliderValueChanged(juce::Slider* slider)
+{
+    if (slider == &attack_)
+    {
+        /*
+        for (auto* voice : synth_.getVoices())
+        {
+            voice->setAttack(attack_.getValue());
+        }
+         */
+    }
+    else if (slider == &decay_)
+    {
+        */
+        for (auto* voice : synth_.getVoices())
+        {
+            voice->setDecay(decay_.getValue());
+        }
+        */
+    }
+    else if (slider == &sustain_)
+    {
+        /*
+        for (auto* voice : synth_.getVoices())
+        {
+            voice->setSustain(sustain_.getValue());
+        }
+         */
+    }
+    else if (slider == &release_)
+    {
+        /*
+        for (auto* voice : synth_.getVoices())
+        {
+            voice->setRelease(release_.getValue());
+        }
+         */
+    }
+}
