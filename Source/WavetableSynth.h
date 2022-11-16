@@ -164,6 +164,11 @@ public:
         samples[table_size_] = samples[0];
     }
 
+    juce::OwnedArray<WavetableSynth>& getVoices()
+    {
+        return voices_; // sorry, this is a hack
+    }
+
 private:
 
     float calcAmplitude()

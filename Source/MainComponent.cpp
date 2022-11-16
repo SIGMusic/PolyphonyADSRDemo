@@ -104,38 +104,30 @@ void MainComponent::sliderValueChanged(juce::Slider* slider)
 {
     if (slider == &attack_)
     {
-        /*
         for (auto* voice : synth_.getVoices())
         {
             voice->setAttack(attack_.getValue());
         }
-         */
     }
     else if (slider == &decay_)
     {
-        */
         for (auto* voice : synth_.getVoices())
         {
             voice->setDecay(decay_.getValue());
         }
-        */
     }
     else if (slider == &sustain_)
     {
-        /*
         for (auto* voice : synth_.getVoices())
         {
             voice->setSustain(sustain_.getValue());
         }
-         */
     }
     else if (slider == &release_)
     {
-        /*
         for (auto* voice : synth_.getVoices())
         {
             voice->setRelease(release_.getValue());
         }
-         */
     }
 }
