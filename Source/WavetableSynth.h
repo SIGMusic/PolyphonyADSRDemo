@@ -46,6 +46,25 @@ public:
     }
 
     // TODO
+    void setAttack(float attack_time)
+    {
+        attack_time_ = attack_time;
+    }
+
+    void setDecay(float decay_time)
+    {
+        decay_time_ = decay_time;
+    }
+ 
+    void setSustain(float sustain_frac)
+    {
+        sustain_frac_ = sustain_frac;
+    }
+
+    void setRelease(float release_time)
+    {
+        release_time_ = release_time;
+    }
 
     /**
     Calculates the number of "steps" to take through the table per sample.
