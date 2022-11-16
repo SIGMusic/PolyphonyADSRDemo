@@ -18,7 +18,14 @@
 class WavetableSynth  : public juce::ToneGeneratorAudioSource
 {
 public:
-    // TODO
+    WavetableSynth(float attack_time = 0.1,
+                   float decay_time = 0.2,
+                   float sustain_frac = 0.9,
+                   float release_time = 0.1) :
+        attack_time_(attack_time),
+        decay_time_(decay_time),
+        sustain_frac_(sustain_frac),
+        release_time_(release_time)
     WavetableSynth()
     {
         buildWavetable();
