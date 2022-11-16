@@ -74,17 +74,17 @@ public:
  
     virtual void prepareToPlay(int samplesPerBlockExpected, double sampleRate) override
     {
-        // TODO
+        mixer_.prepareToPlay(samplesPerBlockExpected, sampleRate);
     }
  
     virtual void releaseResources() override
     {
-        // TODO
+        mixer_.releaseResources();
     }
 
     virtual void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill) override
     {
-        // TODO
+        mixer_.getNextAudioBlock(bufferToFill);
     }
 
     //==========================================================================
