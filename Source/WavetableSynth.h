@@ -26,7 +26,6 @@ public:
         decay_time_(decay_time),
         sustain_frac_(sustain_frac),
         release_time_(release_time)
-    WavetableSynth()
     {
         buildWavetable();
     }
