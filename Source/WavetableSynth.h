@@ -34,9 +34,18 @@ public:
     ~WavetableSynth() override { /* Nothing */ }
     
     // TODO
-    void setAmplitude(float amp)
+    void noteOn(float amp)
     {
-        amplitude_ = amp;
+        if (attack_time_ == 0.0f)
+            adsr_state_ = Sustain;
+        else
+            adsr_state_ = Attack;
+        max_amplitude_ = amp;
+    }
+
+    void noteOff()
+    {
+        adsr_state_ = Release;
     }
 
     void setFrequency(float frequency)
@@ -92,7 +101,7 @@ public:
         for (unsigned int idx = 0; idx < bufferToFill.numSamples; ++idx)
         {
             // TODO
-            buf0[idx] = amplitude_ * getNextSample();
+            buf0[idx] = calcAmplitude() * getNextSample();
         }
 
         // Duplicate signal across all channels
