@@ -31,6 +31,14 @@ public:
         midi_keyboard_.reset(new juce::MidiKeyboardComponent(midi_keyboard_state_,
                             juce::KeyboardComponentBase::Orientation::horizontalKeyboard));
         addAndMakeVisible(midi_keyboard_.get());
+
+        for (int voice_idx = 0; voice_idx < max_voices_; ++voice_idx)
+        {
+            auto* synth = new WavetableSynth();
+            mixer_.addInputSource(synth, false);
+            // TODO
+            voices_.add(synth);
+        }
     }
 
     virtual ~SynthKeyboard() = default;
