@@ -36,7 +36,7 @@ public:
         {
             auto* synth = new WavetableSynth();
             mixer_.addInputSource(synth, false);
-            // TODO
+            free_voices_[num_free_voices_++] = synth;
             voices_.add(synth);
         }
     }
