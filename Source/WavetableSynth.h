@@ -160,7 +160,50 @@ private:
 
     float calcAmplitude()
     {
+        // all in units of amplitude per sample
+        int attack_samples = fmax(sample_rate_ * attack_time_, 1);
+        int decay_samples = fmax(sample_rate_ * decay_time_, 1);
+        int release_samples = fmax(sample_rate_ * release_time_, 1);
+
+        float attack_rate = max_amplitude_ / attack_samples;
+        float decay_rate = (max_amplitude_ * (1 - sustain_frac_)) / decay_samples;
+        float release_rate = (max_amplitude_ * sustain_frac_) / release_samples;
         // TODO
+
+        switch (adsr_state_)
+        {
+            case Attack:
+                if (curr_amplitude_ >= max_amplitude_)
+                {
+                    curr_amplitude_ = max_amplitude_;
+                    adsr_state_ = Decay;
+                    break;
+                }
+                curr_amplitude_ += attack_rate;
+                break;
+            case Decay:
+                if (curr_amplitude_ <= sustain_frac_ * max_amplitude_)
+                {
+                    curr_amplitude_ = sustain_frac_ * max_amplitude_;
+                    adsr_state_ = Sustain;
+                    break;
+                }
+                curr_amplitude_ -= decay_rate;
+                break;
+            case Sustain:
+                curr_amplitude_ = sustain_frac_ * max_amplitude_;
+                break;
+            case Release:
+                if (curr_amplitude_ <= 0)
+                {
+                    curr_amplitude_ = 0;
+                    break;
+                }
+                curr_amplitude_ -= release_rate;
+                break;
+        }
+
+        return curr_amplitude_;
     }
 
     // Begin wavetable data
