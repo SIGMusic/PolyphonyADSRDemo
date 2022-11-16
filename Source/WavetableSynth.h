@@ -141,14 +141,25 @@ private:
     juce::AudioSampleBuffer wavetable_;
     int table_size_ = 4096;
     double sample_rate_ = 48000.0;
-    // TODO
-    float amplitude_ = 0.0f;
     float frequency_ = 440.0f;
     float current_index_ = 0.0f, table_delta_ = 0.0f;
     // End wavetable data
 
     // Begin ADSR data
-    // TODO
+    typedef enum
+    {
+        Attack,
+        Decay,
+        Sustain,
+        Release
+    } State;
+    State adsr_state_;
+    float max_amplitude_ = 0.0f;
+    float curr_amplitude_ = 0.0f;
+    float attack_time_;
+    float decay_time_;
+    float sustain_frac_;         // fraction of maximum amplitude to sustain
+    float release_time_;
     // End ADSR data
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WavetableSynth)
