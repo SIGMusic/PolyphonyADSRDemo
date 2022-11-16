@@ -115,6 +115,9 @@ public:
 
 private:
     // TODO
+    static const int max_voices_ = 8;
+    juce::OwnedArray<WavetableSynth> voices_;
+    juce::MixerAudioSource mixer_;
 
     juce::MidiKeyboardState midi_keyboard_state_;
     std::unique_ptr<juce::MidiKeyboardComponent> midi_keyboard_;
