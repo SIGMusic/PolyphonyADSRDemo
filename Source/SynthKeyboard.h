@@ -108,7 +108,14 @@ public:
                                int midiNoteNumber,
                                float velocity) override
     {
-        // TODO
+        std::unordered_map<int, WavetableSynth*>::iterator iter;
+        if ((iter = voice_mapping_.find(midiNoteNumber)) != voice_mapping_.end())
+        {
+            auto* voice = voice_mapping_[midiNoteNumber];
+            voice->noteOff();
+            voice_mapping_.erase(iter);
+            free_voices_[num_free_voices_++] = voice;
+        }
     }
 
     //==========================================================================
