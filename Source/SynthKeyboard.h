@@ -100,7 +100,21 @@ public:
                               int midiNoteNumber,
                               float velocity) override
     {
-        // TODO
+        if (voice_mapping_.find(midiNoteNumber) != voice_mapping_.end())
+        {
+            voice_mapping_[midiNoteNumber]->setFrequency(
+                (juce::uint8) midiToFreq(midiNoteNumber));
+        }
+        else if (num_free_voices_ > 0)
+        {
+            auto* voice = free_voices_[num_free_voices_ - 1];
+            voice_mapping_[midiNoteNumber] = voice;
+            auto freq = midiToFreq((juce::uint8) midiNoteNumber);
+            voice->setFrequency(freq);
+            voice->noteOn(1.0 / max_voices_);
+            free_voices_[num_free_voices_ - 1] = nullptr;
+            --num_free_voices_;
+        }
     }
 
     virtual void handleNoteOff(juce::MidiKeyboardState *source,
