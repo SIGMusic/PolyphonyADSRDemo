@@ -127,6 +127,10 @@ private:
     juce::OwnedArray<WavetableSynth> voices_;
     juce::MixerAudioSource mixer_;
 
+    int num_free_voices_ = 0;
+    WavetableSynth* free_voices_[max_voices_];
+    unordered_map<int, WavetableSynth*> voice_mapping_;
+
     juce::MidiKeyboardState midi_keyboard_state_;
     std::unique_ptr<juce::MidiKeyboardComponent> midi_keyboard_;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SynthKeyboard)
