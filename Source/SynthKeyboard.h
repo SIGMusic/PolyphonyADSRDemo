@@ -142,6 +142,11 @@ public:
         midi_keyboard_->setBounds(getLocalBounds());
     }
 
+    juce::OwnedArray<WavetableSynth>& getVoices()
+    {
+        return voices_; // sorry, this is a hack
+    }
+
 private:
     // TODO
     static const int max_voices_ = 8;
